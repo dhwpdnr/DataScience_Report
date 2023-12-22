@@ -1,53 +1,23 @@
 import pandas as pd
-from konlpy.tag import Okt
-import operator
+import numpy as np
 
-path = "./data/"
-name = "kakao_talk.csv"
+from tqdm import tqdm
 
-read_fileName = path + name
+import warnings
 
-df = pd.read_csv(read_fileName)
+warnings.filterwarnings('ignore')
 
-deleteS = ['ㅜ', 'ㅠ', 'ㅋ', 'ㅇ', 'ㅎ', 'ㅗ']
+data = pd.read_csv('./data/train.csv')
+data.head()
+cat_df_list = []
 
-okt = Okt()
-words_freq = {}
-name_freq = {}
-df["Date"] = pd.to_datetime(df["Date"])
-date_counts = df.groupby(df['Date'].dt.date).size()
-date_counts_sorted = date_counts.sort_values(ascending=False)
+# Iterate over the rows of the data
+for index, row in tqdm(data.iterrows()):
+    cat_list = np.tile(row[:6].values, (len(row[6:]), 1))  # 첫 6개 데이터를 반복
+    cat_df = pd.DataFrame(cat_list, columns=data.columns[:6])  # 반복된 데이터를 데이터프레임으로 변환
+    cat_df['판매량'] = row[6:].values  # 판매량 데이터 추가
+    cat_df_list.append(cat_df)
 
-print(date_counts_sorted)
-# df["month"] = df["date"].dt.month
-# df["day"] = df["date"].dt.day
-# print(df.groupby(['year', 'month'])['count'].sum())
-for item in df.itertuples():
-    date = item[1]
-    name = item[2]
-    text = item[3]
-    for d in deleteS:
-        text = text.replace(d, '')
-    # word_list = text.split(" ")
-    # print(word_list)
-
-    if name_freq.get(name):
-        name_freq[name] += 1
-    else:
-        name_freq[name] = 1
-
-    n_list = okt.nouns(text)
-    for n in n_list:
-        if len(n) > 1:
-            if n not in list(words_freq.keys()):
-                words_freq[n] = 1
-            else:
-                words_freq[n] = words_freq[n] + 1
-
-sdict = sorted(words_freq.items(), key=operator.itemgetter(1), reverse=True)
-ndict = sorted(name_freq.items(), key=operator.itemgetter(1), reverse=True)
-# for s in sdict:
-#     print(s)
-
-# for n in ndict:
-#     print(n)
+cat_df = pd.concat(cat_df_list, axis=0)
+cat_df.reset_index(drop=True, inplace=True)
+# print(cat_df)
