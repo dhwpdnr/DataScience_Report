@@ -2,3 +2,5 @@ pandas
 numpy
 konlpy
 tqdm
+matplotlib
+seaborn
