@@ -38,6 +38,38 @@ for name, df in dataframes.items():
         print(df.describe())
         print("\n")
 
+# 결측치 처리
+for name, df in dataframes.items():
+    df.fillna(0, inplace=True)
+import pandas as pd
+
+# 'sales.csv' 파일 불러오기
+sales_df = pd.read_csv("data/sales.csv")
+
+# 데이터 확인
+# print(sales_df.head())
+
+# 6번째 열부터 날짜 데이터로 가정하고, melt 함수를 사용
+sales_melted = sales_df.melt(id_vars=sales_df.columns[:6],  # 첫 5개 열을 id_vars로 유지
+                             var_name='date',
+                             value_name='sales')
+
+# 'date' 열을 datetime 객체로 변환
+sales_melted['date'] = pd.to_datetime(sales_melted['date'])
+
+# 데이터 확인
+print(sales_melted.head())
+
+# 결측치를 0 또는 평균값 등으로 대체 (여기서는 0으로 대체)
+sales_melted.fillna(0, inplace=True)
+
+# 시계열 데이터 시각화
+sales_melted['sales'].plot(figsize=(15, 6))
+plt.title('Sales Over Time')
+plt.xlabel('Date')
+plt.ylabel('Sales')
+plt.show()
+
 # 예시: 'sales' 데이터의 일부 시계열 데이터 시각화
 plt.figure(figsize=(15, 6))
 sns.lineplot(data=dataframes['sales'].iloc[:, 6:16])
@@ -45,4 +77,4 @@ plt.title('Sales Time Series for First Few Dates')
 plt.xlabel('Date')
 plt.ylabel('Sales')
 plt.xticks(rotation=45)
-plt.show()
+# plt.show()
