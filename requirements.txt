@@ -4,3 +4,4 @@ konlpy
 tqdm
 matplotlib
 seaborn
+statsmodels
